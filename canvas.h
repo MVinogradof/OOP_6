@@ -17,7 +17,6 @@ class canvas : public QWidget
 public:
     canvas(graph*);
     ~canvas();
-    void paint();
 
 protected:
     void paintEvent(QPaintEvent*);

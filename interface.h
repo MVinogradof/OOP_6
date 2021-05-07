@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QFile>
 #include <QFileDialog>
+#include <QMessageBox>
 
 #include <canvas.h>
 

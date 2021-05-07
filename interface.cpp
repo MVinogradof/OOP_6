@@ -26,16 +26,39 @@ void interface::on_Show_clicked()
     QTextStream buf(&f);
     int size;
     buf >> size;
+    if(size <= 0)
+    {
+        QMessageBox::warning(this,"Error","Incorrect data");
+        return;
+    }
     g = new graph;
     g->new_matrix(size);
     for(int i=0; i<size; i++)
     {
         for(int j=0; j<size; j++)
         {
+            if(buf.atEnd())
+            {
+                QMessageBox::warning(this,"Error","Incorrect data");
+                delete g;
+                return;
+            }
             int a;
             buf >> a;
+            if(a != 1 && a != 0)
+            {
+                QMessageBox::warning(this,"Error","Incorrect data");
+                delete g;
+                return;
+            }
             g->set_a(a, i, j);
         }
+    }
+    if(!buf.atEnd())
+    {
+        QMessageBox::warning(this,"Error","Incorrect data");
+        delete g;
+        return;
     }
     c = new canvas(g);
     c->show();

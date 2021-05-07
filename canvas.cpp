@@ -15,70 +15,50 @@ canvas::~canvas()
 void canvas::paintEvent(QPaintEvent* event)
 {
     Q_UNUSED(event);
+    int n = g->get_n();
+    qreal centX = 0.5*rect().width();
+    qreal centY = 0.5*rect().height();
+    qreal R_big = 0.7*(centX>centY?centY:centX);
+    qreal font_sz = R_big/n;
+    qreal angle = 2.0*acos(-1.0)/n;
+    QPointF *t = new QPointF[n];
+
     QPainter painter(this);
-    QFont font;
-
-    qreal cw = 0.5*rect().width();
-    qreal ch = 0.5*rect().height();
-    qreal cr = 0.7*(cw>ch?ch:cw);
-    qreal cs = 1.5 * cr/g->get_n();
-    qreal cf = 0.7 * cs;
-    qreal a = 2.0*acos(-1.0)/g->get_n();
-    QPointF *t = new QPointF[g->get_n()];
-
     painter.setPen(QPen(Qt::black));
-    font.setPointSize(cf);
+    QFont font;
+    font.setPointSize(font_sz);
     painter.setFont(font);
 
-    for (int i=0; i<g->get_n(); i++)
+    for (int i=0; i<n; i++)
     {
-        t[i] = QPointF(cw+cr*sin(i*a),ch-cr*cos(i*a));
-        painter.drawEllipse(t[i],cs,cs);
-        painter.drawText(t[i].rx()-cs/4-cs*((i>9?0.25:0)),t[i].ry()+cs/4,QString().setNum(i+1));
+        t[i] = QPointF(centX+R_big*sin(i*angle), centY-R_big*cos(i*angle));
+        painter.setBrush(QBrush(Qt::black));
+        painter.drawEllipse(t[i], R_big/(5*n), R_big/(5*n));
+        QLine R(centX, centY, t[i].rx(), t[i].ry());
+        int offsX, offsY;
+        offsX = abs(R.dx()*0.15);
+        offsY = abs(R.dy()*0.15);
+        if(t[i].rx() < centX)
+            offsX = -offsX;
+        if(t[i].ry() < centY)
+            offsY = -offsY;
+        painter.drawText(t[i].rx()-font_sz/2+offsX, t[i].ry()+font_sz/2+offsY, QString().setNum(i+1));
     }
 
-    for (int i = 0; i < g->get_n(); i++)
-        for (int j = 0; j < g->get_n(); j++)
-        {
-            if ((g->get_a(i, j))&&(i!=j))
+    for (int i=0; i<n; i++)
+        for (int j=0; j<n; j++)
+            if ((g->get_a(i, j) != 0) && (i != j))
+                painter.drawLine(t[i], t[j]);
+
+    for (int i=0; i<n; i++)
+        for (int j=0; j<n; j++)
+            if ((g->get_a(i, j) != 0) && (i != j))
             {
-                QLine tmp(t[i].rx(),t[i].ry(),t[j].rx(),t[j].ry());
-                double dx=tmp.dx(), dy=tmp.dy(),tmpd,dyp,dxp;
-                tmpd=cs/(sqrt(dx*dx+dy*dy));
-                dx*=tmpd;
-                dy*=tmpd;
-                painter.drawLine(t[i]+QPointF(dx,dy),t[j]-QPointF(dx,dy));
-
-                QPointF *arrow = new QPointF[3];
-
-                if ((abs(dy)<1)||(abs(dx)<1))
-                {
-                    dyp=dx;
-                    dxp=dy;
-                }
-                else
-                {
-                    dyp=dy;
-                    dxp=-(dy*dyp)/dx;
-                }
-
-                tmpd=cs/(sqrt(dxp*dxp+dyp*dyp));
-                dxp*=tmpd;
-                dyp*=tmpd;
-
-                arrow[0]=t[j]-QPointF(dx,dy);
-                arrow[1]=t[j]-QPointF(dx,dy)-0.2*QPointF(dx,dy)+0.1*QPointF(dxp,dyp);
-                arrow[2]=t[j]-QPointF(dx,dy)-0.2*QPointF(dx,dy)-0.1*QPointF(dxp,dyp);
-
-                painter.setBrush(QBrush(Qt::black));
-
-                painter.drawPolygon(arrow,3);
-
-                painter.setBrush(QBrush(Qt::white));
-
-                delete [] arrow;
+                QLineF tmp(t[i].rx(),t[i].ry(),t[j].rx(),t[j].ry());
+                painter.setBrush(QBrush(Qt::gray));
+                painter.drawPie(t[i].rx()-0.2*R_big, t[i].ry()-0.2*R_big, 0.4*R_big, 0.4*R_big, -6*16+tmp.angle()*16, 12*16);
             }
-        }
+
 
     delete [] t;
 }
