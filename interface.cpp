@@ -24,13 +24,10 @@ void interface::on_Show_clicked()
     QFile f(ui->Path->text());
     f.open(QIODevice::ReadOnly);
     QTextStream buf(&f);
-    qDebug() << "Read to buf";
     int size;
     buf >> size;
-    qDebug() << "Read size" << size;
     g = new graph;
     g->new_matrix(size);
-    qDebug() << "matrix";
     for(int i=0; i<size; i++)
     {
         for(int j=0; j<size; j++)
@@ -38,7 +35,6 @@ void interface::on_Show_clicked()
             int a;
             buf >> a;
             g->set_a(a, i, j);
-            qDebug() << i << j;
         }
     }
     c = new canvas(g);
