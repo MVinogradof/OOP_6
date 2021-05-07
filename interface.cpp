@@ -28,6 +28,7 @@ void interface::on_Show_clicked()
     int size;
     buf >> size;
     qDebug() << "Read size" << size;
+    g = new graph;
     g->new_matrix(size);
     qDebug() << "matrix";
     for(int i=0; i<size; i++)
@@ -41,5 +42,5 @@ void interface::on_Show_clicked()
         }
     }
     c = new canvas(g);
-
+    c->show();
 }
